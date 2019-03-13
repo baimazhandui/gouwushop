@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pinyougou.mapper.GoodsMapper">
+    <!-- 多条件查询商品 -->
+    <!-- is null, 不能 = null -->
+    <select id="findAll" resultType="map">
+        SELECT id,goods_name goodsName,price,
+        audit_status auditStatus,category1_id category1Id,
+        category2_id category2Id,category3_id category3Id
+        FROM tb_goods
+        WHERE is_delete IS NULL
+            <!-- 商家id -->
+            <if test="sellerId != null and sellerId !=''">
+                and seller_id = #{sellerId}
+            </if>
+            <!-- 商品名称 -->
+            <if test="goodsName != null and goodsName !=''">
+                and goods_name like CONCAT('%',#{goodsName},'%')
+            </if>
+            <!-- 商品状态 -->
+            <if test="auditStatus != null and auditStatus !=''">
+                and audit_status = #{auditStatus}
+            </if>
+        order by id asc
+    </select>
+
+    <update id="updateStatus">
+        UPDATE tb_goods SET audit_status = #{auditStatus} WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <update id="deleteAll">
+        UPDATE tb_goods SET is_delete = #{isDelete} WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <update id="updateMarketable">
+        UPDATE tb_goods SET is_marketable = #{isMarketable} WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+</mapper>
