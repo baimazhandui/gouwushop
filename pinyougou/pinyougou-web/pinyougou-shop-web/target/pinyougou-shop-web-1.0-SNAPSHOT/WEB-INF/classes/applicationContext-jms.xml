@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+      http://www.springframework.org/schema/beans/spring-beans.xsd
+      http://www.springframework.org/schema/context
+      http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!--配置加载属性文件-->
+    <context:property-placeholder
+        location="classpath:jms.properties"/>
+    <!--############# 通用配置 ############-->
+    <bean id="activeMQConnectionFactory"
+          class="org.apache.activemq.ActiveMQConnectionFactory">
+        <!--设置brokerURL连接消息中间件的地址-->
+        <property name="brokerURL" value="${brokerURL}"/>
+    </bean>
+    <!--配置Spring-JMS的单例连接工厂-->
+    <bean id="singleConnectionFactory"
+          class="org.springframework.jms.connection.SingleConnectionFactory">
+        <!--设置ActiveMQ的连接工厂交由它管理-->
+        <property name="targetConnectionFactory" ref="activeMQConnectionFactory"/>
+    </bean>
+
+    <!--########### 消息生产者配置 #############-->
+    <!--配置 JmsTemplate 模板对象发送消息-->
+    <bean id="jmsTemplate"
+          class="org.springframework.jms.core.JmsTemplate">
+        <!--设置连接工厂-->
+        <property name="connectionFactory" ref="singleConnectionFactory"/>
+    </bean>
+    <!--设置消息的目标模式(点对点)-->
+    <bean id="solrQueue" class="org.apache.activemq.command.ActiveMQQueue">
+        <!--设置队列名称-->
+        <constructor-arg value="solr.queue"/>
+    </bean>
+    <bean id="solrDeleteQueue"
+          class="org.apache.activemq.command.ActiveMQQueue">
+        <!--配置队列名称-->
+        <constructor-arg value="solr.delete.queue"/>
+    </bean>
+    <!--配置消息的目标模式(点对点)-->
+    <bean id="pageTopic"
+          class="org.apache.activemq.command.ActiveMQTopic">
+        <!--设置主题名称-->
+        <constructor-arg value="page.topic"/>
+    </bean>
+    <!--配置消息的目标(发布与订阅)-->
+    <bean id="pageDeleteTopic"
+          class="org.apache.activemq.command.ActiveMQTopic">
+        <!--设置主题名称-->
+        <constructor-arg value="page.delete.topic"/>
+    </bean>
+</beans>
